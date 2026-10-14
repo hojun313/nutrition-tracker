@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>식단 & 영양 성분 계산기</title>
+  <title>식단 & 영양 성분 계산기 | Diet & Nutrition Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -26,18 +26,22 @@
       <div class="flex items-center gap-2">
         <span class="text-2xl">🥗</span>
         <div>
-          <h1 class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">일일 식단 & 영양 계산기</h1>
-          <p class="text-[11px] text-slate-400 hidden sm:block">AI 사진 실측 분석 · 섭취량 비율 조절 · 주간 평균 리포트</p>
+          <h1 id="appTitle" class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">일일 식단 & 영양 계산기</h1>
+          <p id="appSubtitle" class="text-[11px] text-slate-400 hidden sm:block">AI 사진 실측 분석 · 섭취량 비율 조절 · 주간 평균 리포트</p>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-        <button id="prevDayBtn" class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-xs sm:text-sm font-medium" title="이전 날짜">◀</button>
+        <!-- 언어 전환 버튼 -->
+        <button id="langToggleBtn" class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-xs sm:text-sm font-bold text-slate-700 transition">
+          🌐 EN
+        </button>
+        <button id="prevDayBtn" class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-xs sm:text-sm font-medium">◀</button>
         <input type="date" id="datePicker" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm font-semibold bg-white">
-        <button id="nextDayBtn" class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-xs sm:text-sm font-medium" title="다음 날짜">▶</button>
+        <button id="nextDayBtn" class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-xs sm:text-sm font-medium">▶</button>
         <button id="todayBtn" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-white text-xs sm:text-sm font-medium hover:bg-slate-700">오늘</button>
         <button id="openGoalModalBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs sm:text-sm font-semibold hover:bg-emerald-500 flex items-center gap-1">
-          <span>⚙️</span><span>목표·API 설정</span>
+          <span>⚙️</span><span id="settingsBtnText">목표·API 설정</span>
         </button>
       </div>
     </div>
@@ -46,7 +50,7 @@
   <!-- API 키 미설정 안내 배너 -->
   <div id="apiNoticeBanner" class="bg-indigo-50 border-b border-indigo-100 hidden">
     <div class="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2 text-xs text-indigo-900">
-      <span>💡 <b>AI 사진 자동 분석</b>을 쓰려면 우측 상단 <b>[목표·API 설정]</b>에서 무료 Gemini API 키를 등록하세요. (키 없이도 사진 첨부 및 수동·프리셋 기록이 가능합니다)</span>
+      <span id="apiBannerText">💡 <b>AI 사진 자동 분석</b>을 쓰려면 우측 상단 <b>[목표·API 설정]</b>에서 무료 Gemini API 키를 등록하세요. (키 없이도 사진 첨부 및 수동·프리셋 기록이 가능합니다)</span>
       <button id="openModalFromBannerBtn" class="shrink-0 font-bold underline text-indigo-700 hover:text-indigo-900">키 설정하기</button>
     </div>
   </div>
@@ -59,7 +63,7 @@
       <!-- 1. 사진 입력 및 식단 추가 카드 -->
       <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-bold text-slate-900">📸 사진으로 식단 기록하기</h2>
+          <h2 id="recordCardTitle" class="text-base font-bold text-slate-900">📸 사진으로 식단 기록하기</h2>
           <button id="resetFormBtn" type="button" class="text-xs text-slate-400 hover:text-slate-600">입력 초기화</button>
         </div>
 
@@ -67,11 +71,11 @@
           <!-- 사진 업로드 박스 -->
           <div class="sm:col-span-1 flex flex-col">
             <label for="photoInput" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/30 overflow-hidden relative bg-slate-50 transition">
-              <img id="photoPreview" class="hidden w-full h-full object-cover" alt="식단 미리보기">
+              <img id="photoPreview" class="hidden w-full h-full object-cover" alt="Meal preview">
               <div id="photoPlaceholder" class="text-center p-3">
                 <div class="text-3xl mb-1">📷</div>
-                <span class="text-xs text-slate-600 font-semibold block">사진 선택 또는 촬영</span>
-                <span class="text-[11px] text-slate-400 mt-0.5 block">수저가 함께 보이면 더 정확해요</span>
+                <span id="photoSelectText" class="text-xs text-slate-600 font-semibold block">사진 선택 또는 촬영</span>
+                <span id="photoSubText" class="text-[11px] text-slate-400 mt-0.5 block">수저가 함께 보이면 더 정확해요</span>
               </div>
               <input id="photoInput" type="file" accept="image/*" class="hidden">
             </label>
@@ -84,48 +88,48 @@
           <div class="sm:col-span-2 space-y-3">
             <div class="grid grid-cols-3 gap-2">
               <select id="mealType" class="col-span-1 px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white font-semibold">
-                <option value="아침">🌅 아침</option>
-                <option value="점심" selected>☀️ 점심</option>
-                <option value="저녁">🌙 저녁</option>
-                <option value="간식">🍎 간식</option>
+                <option value="breakfast" id="optBreakfast">🌅 아침</option>
+                <option value="lunch" id="optLunch" selected>☀️ 점심</option>
+                <option value="dinner" id="optDinner">🌙 저녁</option>
+                <option value="snack" id="optSnack">🍎 간식</option>
               </select>
-              <input id="foodName" type="text" placeholder="음식 이름 (예: 김치찌개, 잡곡밥, 계란후라이)" class="col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-sm">
+              <input id="foodName" type="text" placeholder="음식 이름 (예: 김치찌개, 잡곡밥)" class="col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-sm">
             </div>
 
-            <!-- 섭취량 비율 조절기 (과대 측정 보정 & 남긴 음식 반영) -->
+            <!-- 섭취량 비율 조절기 -->
             <div class="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/80 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-emerald-900">⚖️ 섭취량·크기 비율 보정</span>
-                <span id="portionValueLabel" class="text-xs font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200">100% (기본)</span>
+                <span id="portionTitle" class="text-xs font-bold text-emerald-900">⚖️ 섭취량·크기 비율 보정</span>
+                <span id="portionValueLabel" class="text-xs font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200">100%</span>
               </div>
               <div class="flex items-center gap-2">
                 <input id="portionSlider" type="range" min="30" max="150" step="5" value="100" class="w-full h-1.5 bg-emerald-200 rounded-lg cursor-pointer">
               </div>
               <div class="flex flex-wrap gap-1 pt-0.5">
-                <button type="button" data-ratio="50" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">50% (반만)</button>
-                <button type="button" data-ratio="70" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">70% (소식/보정)</button>
-                <button type="button" data-ratio="80" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">80% (적당히)</button>
-                <button type="button" data-ratio="100" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-emerald-600 text-white border border-emerald-600 transition">100% (기본)</button>
-                <button type="button" data-ratio="120" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">120% (곱빼기)</button>
+                <button type="button" data-ratio="50" id="ratioBtn50" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">50% (반만)</button>
+                <button type="button" data-ratio="70" id="ratioBtn70" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">70% (소식)</button>
+                <button type="button" data-ratio="80" id="ratioBtn80" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">80% (적당히)</button>
+                <button type="button" data-ratio="100" id="ratioBtn100" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-emerald-600 text-white border border-emerald-600 transition">100% (기본)</button>
+                <button type="button" data-ratio="120" id="ratioBtn120" class="ratio-btn flex-1 py-1 text-[11px] font-semibold rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-emerald-600 hover:text-white transition">120% (곱빼기)</button>
               </div>
             </div>
 
             <!-- 탄단지 & 칼로리 수치 입력 -->
             <div class="grid grid-cols-4 gap-2">
               <div>
-                <label class="block text-[11px] font-semibold text-slate-500 mb-1">칼로리(kcal)</label>
+                <label id="lblKcal" class="block text-[11px] font-semibold text-slate-500 mb-1">칼로리(kcal)</label>
                 <input id="inputKcal" type="number" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-sm font-bold text-slate-900">
               </div>
               <div>
-                <label class="block text-[11px] font-semibold text-slate-500 mb-1">탄수화물(g)</label>
+                <label id="lblCarbs" class="block text-[11px] font-semibold text-slate-500 mb-1">탄수화물(g)</label>
                 <input id="inputCarbs" type="number" min="0" step="0.1" placeholder="0" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-sm">
               </div>
               <div>
-                <label class="block text-[11px] font-semibold text-slate-500 mb-1">단백질(g)</label>
+                <label id="lblProtein" class="block text-[11px] font-semibold text-slate-500 mb-1">단백질(g)</label>
                 <input id="inputProtein" type="number" min="0" step="0.1" placeholder="0" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-sm">
               </div>
               <div>
-                <label class="block text-[11px] font-semibold text-slate-500 mb-1">지방(g)</label>
+                <label id="lblFat" class="block text-[11px] font-semibold text-slate-500 mb-1">지방(g)</label>
                 <input id="inputFat" type="number" min="0" step="0.1" placeholder="0" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-sm">
               </div>
             </div>
@@ -144,7 +148,7 @@
         <!-- AI 분석 품목별 세부 내역 표시 박스 -->
         <div id="aiBreakdownBox" class="hidden mb-4 p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-100">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-indigo-900">🔍 AI 품목별 실측 분석 내역 (체크 해제 시 합계에서 제외)</span>
+            <span id="aiBreakdownTitle" class="text-xs font-bold text-indigo-900">🔍 AI 품목별 실측 분석 내역 (체크 해제 시 합계에서 제외)</span>
             <span id="aiConfidenceNotice" class="text-[11px] text-indigo-600 font-medium">수저·그릇 크기 반영됨</span>
           </div>
           <div id="aiBreakdownList" class="space-y-1.5 text-xs"></div>
@@ -154,7 +158,7 @@
 
         <!-- 빠른 프리셋 버튼 -->
         <div class="border-t border-slate-100 pt-3">
-          <span class="text-xs font-semibold text-slate-400 block mb-2">⚡ 빠른 식단 프리셋 (클릭 시 입력란에 합산)</span>
+          <span id="presetTitle" class="text-xs font-semibold text-slate-400 block mb-2">⚡ 빠른 식단 프리셋 (클릭 시 입력란에 합산)</span>
           <div id="presetContainer" class="flex flex-wrap gap-1.5"></div>
         </div>
       </div>
@@ -162,7 +166,7 @@
       <!-- 2. 선택 날짜 식단 기록 리스트 -->
       <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-bold text-slate-900"><span id="selectedDateLabel">오늘</span>의 식단 기록</h2>
+          <h2 id="logListTitle" class="text-base font-bold text-slate-900">오늘의 식단 기록</h2>
           <span id="mealCountBadge" class="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full">0건</span>
         </div>
         <div id="mealList" class="space-y-3"></div>
@@ -176,14 +180,14 @@
       <!-- 3. 일일 목표 및 영양 달성 현황 -->
       <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-bold text-slate-900">🎯 일일 목표 달성 현황</h2>
+          <h2 id="goalCardTitle" class="text-base font-bold text-slate-900">🎯 일일 목표 달성 현황</h2>
           <span id="dailyCalorieDiff" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700"></span>
         </div>
 
         <!-- 칼로리 메인 게이지 -->
         <div class="mb-5 p-4 rounded-xl bg-slate-50 border border-slate-100">
           <div class="flex justify-between items-baseline mb-1.5">
-            <span class="text-sm font-bold text-slate-700">총 섭취 칼로리</span>
+            <span id="totalKcalLabel" class="text-sm font-bold text-slate-700">총 섭취 칼로리</span>
             <div>
               <span id="curKcal" class="text-2xl font-extrabold text-slate-900">0</span>
               <span class="text-xs text-slate-500"> / <span id="goalKcalText">2,200</span> kcal</span>
@@ -198,7 +202,7 @@
         <div class="space-y-3.5">
           <div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="font-semibold text-slate-700">탄수화물</span>
+              <span id="macroCarbsLabel" class="font-semibold text-slate-700">탄수화물</span>
               <span class="text-slate-600"><b id="curCarbs" class="text-slate-900">0</b> / <span id="goalCarbsText">250</span>g (<span id="pctCarbs">0</span>%)</span>
             </div>
             <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
@@ -208,7 +212,7 @@
 
           <div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="font-semibold text-slate-700">단백질</span>
+              <span id="macroProteinLabel" class="font-semibold text-slate-700">단백질</span>
               <span class="text-slate-600"><b id="curProtein" class="text-slate-900">0</b> / <span id="goalProteinText">150</span>g (<span id="pctProtein">0</span>%)</span>
             </div>
             <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
@@ -218,7 +222,7 @@
 
           <div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="font-semibold text-slate-700">지방</span>
+              <span id="macroFatLabel" class="font-semibold text-slate-700">지방</span>
               <span class="text-slate-600"><b id="curFat" class="text-slate-900">0</b> / <span id="goalFatText">65</span>g (<span id="pctFat">0</span>%)</span>
             </div>
             <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
@@ -231,30 +235,30 @@
       <!-- 4. 주간 평균 (최근 7일) 대시보드 -->
       <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5">
         <div class="flex items-center justify-between mb-1">
-          <h2 class="text-base font-bold text-slate-900">📊 주간 평균 리포트 (최근 7일)</h2>
+          <h2 id="weeklyCardTitle" class="text-base font-bold text-slate-900">📊 주간 평균 리포트 (최근 7일)</h2>
           <span id="weeklyActiveDays" class="text-xs font-semibold text-slate-500">기록일: 0/7일</span>
         </div>
-        <p class="text-xs text-slate-400 mb-4">선택한 날짜 포함 최근 7일 중 실제 기록이 있는 날의 일평균 수치입니다.</p>
+        <p id="weeklyCardDesc" class="text-xs text-slate-400 mb-4">선택한 날짜 포함 최근 7일 중 실제 기록이 있는 날의 일평균 수치입니다.</p>
 
         <!-- 주간 평균 요약 카드 4종 -->
         <div class="grid grid-cols-2 gap-3 mb-5">
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-            <span class="text-xs text-slate-500 block">주간 평균 칼로리</span>
+            <span id="avgKcalLabel" class="text-xs text-slate-500 block">주간 평균 칼로리</span>
             <span class="text-lg font-extrabold text-slate-900"><span id="avgKcal">0</span> <small class="text-xs font-normal">kcal</small></span>
             <span id="avgKcalVsGoal" class="block text-xs text-slate-500 mt-0.5">-</span>
           </div>
           <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-100">
-            <span class="text-xs text-blue-700 block">주간 평균 단백질</span>
+            <span id="avgProteinLabel" class="text-xs text-blue-700 block">주간 평균 단백질</span>
             <span class="text-lg font-extrabold text-blue-900"><span id="avgProtein">0</span> <small class="text-xs font-normal">g</small></span>
             <span id="avgProteinVsGoal" class="block text-xs text-blue-600 mt-0.5">-</span>
           </div>
           <div class="p-3 rounded-xl bg-amber-50/50 border border-amber-100">
-            <span class="text-xs text-amber-700 block">주간 평균 탄수화물</span>
+            <span id="avgCarbsLabel" class="text-xs text-amber-700 block">주간 평균 탄수화물</span>
             <span class="text-lg font-extrabold text-amber-900"><span id="avgCarbs">0</span> <small class="text-xs font-normal">g</small></span>
             <span id="avgCarbsVsGoal" class="block text-xs text-amber-600 mt-0.5">-</span>
           </div>
           <div class="p-3 rounded-xl bg-rose-50/50 border border-rose-100">
-            <span class="text-xs text-rose-700 block">주간 평균 지방</span>
+            <span id="avgFatLabel" class="text-xs text-rose-700 block">주간 평균 지방</span>
             <span class="text-lg font-extrabold text-rose-900"><span id="avgFat">0</span> <small class="text-xs font-normal">g</small></span>
             <span id="avgFatVsGoal" class="block text-xs text-rose-600 mt-0.5">-</span>
           </div>
@@ -263,19 +267,19 @@
         <!-- 최근 7일 칼로리 추이 막대 그래프 -->
         <div>
           <div class="flex justify-between items-center text-xs text-slate-500 mb-2">
-            <span class="font-semibold text-slate-700">최근 7일 칼로리 추이 (날짜 클릭 시 이동)</span>
-            <span>점선: 목표 칼로리</span>
+            <span id="chartTitleLabel" class="font-semibold text-slate-700">최근 7일 칼로리 추이 (날짜 클릭 시 이동)</span>
+            <span id="chartGoalLegend">점선: 목표 칼로리</span>
           </div>
           <div id="weeklyChart" class="h-36 flex items-end justify-between gap-2 pt-6 pb-1 px-2 bg-slate-50 rounded-xl border border-slate-100 relative"></div>
         </div>
 
         <!-- 데이터 백업/복원 -->
         <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap justify-between items-center gap-2">
-          <span class="text-xs text-slate-400">데이터는 각 사용자의 브라우저에 안전하게 보관됩니다</span>
+          <span id="storageNoticeText" class="text-xs text-slate-400">데이터는 각 사용자의 브라우저에 안전하게 보관됩니다</span>
           <div class="flex gap-2.5">
             <button id="exportJsonBtn" class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline">백업 저장(JSON)</button>
             <label class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline cursor-pointer">
-              복원 불러오기
+              <span id="importJsonText">복원 불러오기</span>
               <input id="importJsonInput" type="file" accept="application/json" class="hidden">
             </label>
           </div>
@@ -289,26 +293,26 @@
   <div id="goalModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50 p-4 backdrop-blur-xs">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
       <div class="flex justify-between items-center">
-        <h3 class="text-lg font-bold text-slate-900">🎯 일일 영양 목표 & AI 설정</h3>
+        <h3 id="modalTitle" class="text-lg font-bold text-slate-900">🎯 일일 영양 목표 & AI 설정</h3>
         <button id="closeGoalModalBtn" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
       </div>
 
       <div class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">목표 일일 칼로리 (kcal)</label>
+          <label id="modalGoalKcalLbl" class="block text-xs font-semibold text-slate-600 mb-1">목표 일일 칼로리 (kcal)</label>
           <input id="goalKcalInput" type="number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold">
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">목표 탄수화물 (g)</label>
+            <label id="modalGoalCarbsLbl" class="block text-xs font-semibold text-slate-600 mb-1">목표 탄수화물 (g)</label>
             <input id="goalCarbsInput" type="number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">목표 단백질 (g)</label>
+            <label id="modalGoalProteinLbl" class="block text-xs font-semibold text-slate-600 mb-1">목표 단백질 (g)</label>
             <input id="goalProteinInput" type="number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">목표 지방 (g)</label>
+            <label id="modalGoalFatLbl" class="block text-xs font-semibold text-slate-600 mb-1">목표 지방 (g)</label>
             <input id="goalFatInput" type="number" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
           </div>
         </div>
@@ -316,14 +320,14 @@
 
       <div class="pt-3 border-t border-slate-200 space-y-2">
         <div class="flex items-center justify-between">
-          <label class="block text-xs font-semibold text-slate-700">Gemini API Key (사진 자동 분석용)</label>
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-indigo-600 hover:underline">
+          <label id="modalApiKeyLbl" class="block text-xs font-semibold text-slate-700">Gemini API Key (사진 자동 분석용)</label>
+          <a id="getApiKeyLink" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-indigo-600 hover:underline">
             무료 API 키 발급받기 ↗
           </a>
         </div>
         <input id="apiKeyInput" type="password" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
-        <p class="text-[11px] text-slate-500 leading-relaxed">
-          • 깃허브 페이지 등 공개 웹에서도 안전하도록 입력한 API 키는 외부 서버로 전송되지 않고 <b>현재 접속한 기기의 브라우저(localStorage)에만 저장</b>됩니다.
+        <p id="modalApiNotice" class="text-[11px] text-slate-500 leading-relaxed">
+          • 입력한 API 키는 외부 서버로 전송되지 않고 <b>현재 접속한 기기의 브라우저(localStorage)에만 안전하게 저장</b>됩니다.
         </p>
       </div>
 
@@ -337,30 +341,211 @@
     const STORAGE_LOGS_KEY = "diet_tracker_logs_v2";
     const STORAGE_GOALS_KEY = "diet_tracker_goals_v2";
     const STORAGE_API_KEY = "diet_tracker_gemini_key";
+    const STORAGE_LANG_KEY = "diet_tracker_lang";
 
     const DEFAULT_GOALS = { kcal: 2200, carbs: 250, protein: 150, fat: 65 };
 
-    // 자주 먹는 식단 빠른 프리셋
+    // 다국어 번역 데이터
+    const I18N = {
+      ko: {
+        langBtn: "🌐 EN",
+        appTitle: "일일 식단 & 영양 계산기",
+        appSubtitle: "AI 사진 실측 분석 · 섭취량 비율 조절 · 주간 평균 리포트",
+        todayBtn: "오늘",
+        settingsBtnText: "목표·API 설정",
+        apiBannerText: "💡 <b>AI 사진 자동 분석</b>을 쓰려면 우측 상단 <b>[목표·API 설정]</b>에서 무료 Gemini API 키를 등록하세요. (키 없이도 사진 첨부 및 수동·프리셋 기록이 가능합니다)",
+        openModalFromBannerBtn: "키 설정하기",
+        recordCardTitle: "📸 사진으로 식단 기록하기",
+        resetFormBtn: "입력 초기화",
+        photoSelectText: "사진 선택 또는 촬영",
+        photoSubText: "수저가 함께 보이면 더 정확해요",
+        analyzeBtnDefault: "✨ AI 실측 영양 분석",
+        analyzeBtnLoading: "⏳ 실측 비율 분석 중...",
+        optBreakfast: "🌅 아침",
+        optLunch: "☀️ 점심",
+        optDinner: "🌙 저녁",
+        optSnack: "🍎 간식",
+        mealTypes: { breakfast: "아침", lunch: "점심", dinner: "저녁", snack: "간식", "아침": "아침", "점심": "점심", "저녁": "저녁", "간식": "간식" },
+        foodNamePlaceholder: "음식 이름 (예: 김치찌개, 잡곡밥, 계란후라이)",
+        portionTitle: "⚖️ 섭취량·크기 비율 보정",
+        ratio50: "50% (반만)",
+        ratio70: "70% (소식)",
+        ratio80: "80% (적당히)",
+        ratio100: "100% (기본)",
+        ratio120: "120% (곱빼기)",
+        descHalf: "반 공기/절반",
+        descSmall: "소식/과대측정 보정",
+        descMod: "적당히 섭취",
+        descBase: "기본",
+        descLarge: "넉넉히/곱빼기",
+        lblKcal: "칼로리(kcal)",
+        lblCarbs: "탄수화물(g)",
+        lblProtein: "단백질(g)",
+        lblFat: "지방(g)",
+        calcKcalFromMacroBtn: "🔄 탄단지로 칼로리 재계산 (4·4·9)",
+        addMealBtn: "+ 식단 기록 추가",
+        aiBreakdownTitle: "🔍 AI 품목별 실측 분석 내역 (체크 해제 시 합계에서 제외)",
+        aiConfidenceNotice: "수저·그릇 크기 반영됨",
+        presetTitle: "⚡ 빠른 식단 프리셋 (클릭 시 입력란에 합산)",
+        logListTitleToday: "오늘의 식단 기록",
+        logListTitleDate: (d) => `${d} 식단 기록`,
+        mealCountUnit: (n) => `${n}건`,
+        emptyMealList: "아직 등록된 식단이 없습니다. 사진이나 프리셋으로 첫 끼니를 기록해보세요!",
+        portionBadge: (r) => `${r}% 섭취`,
+        macroShort: { c: "탄", p: "단", f: "지" },
+        deleteBtn: "삭제",
+        goalCardTitle: "🎯 일일 목표 달성 현황",
+        totalKcalLabel: "총 섭취 칼로리",
+        macroCarbsLabel: "탄수화물",
+        macroProteinLabel: "단백질",
+        macroFatLabel: "지방",
+        kcalRemain: (n) => `목표까지 ${n.toLocaleString()} kcal 여유`,
+        kcalOver: (n) => `목표 대비 ${n.toLocaleString()} kcal 초과`,
+        weeklyCardTitle: "📊 주간 평균 리포트 (최근 7일)",
+        weeklyActiveDays: (n) => `기록일: ${n}/7일`,
+        weeklyCardDesc: "선택한 날짜 포함 최근 7일 중 실제 기록이 있는 날의 일평균 수치입니다.",
+        avgKcalLabel: "주간 평균 칼로리",
+        avgProteinLabel: "주간 평균 단백질",
+        avgCarbsLabel: "주간 평균 탄수화물",
+        avgFatLabel: "주간 평균 지방",
+        noRecord: "기록 없음",
+        vsGoalText: (r) => `목표의 ${r}% 수준`,
+        chartTitleLabel: "최근 7일 칼로리 추이 (날짜 클릭 시 이동)",
+        chartGoalLegend: "점선: 목표 칼로리",
+        storageNoticeText: "데이터는 각 사용자의 브라우저에 안전하게 보관됩니다",
+        exportJsonBtn: "백업 저장(JSON)",
+        importJsonText: "복원 불러오기",
+        modalTitle: "🎯 일일 영양 목표 & AI 설정",
+        modalGoalKcalLbl: "목표 일일 칼로리 (kcal)",
+        modalGoalCarbsLbl: "목표 탄수화물 (g)",
+        modalGoalProteinLbl: "목표 단백질 (g)",
+        modalGoalFatLbl: "목표 지방 (g)",
+        modalApiKeyLbl: "Gemini API Key (사진 자동 분석용)",
+        getApiKeyLink: "무료 API 키 발급받기 ↗",
+        modalApiNotice: "• 입력한 API 키는 외부 서버로 전송되지 않고 <b>현재 접속한 기기의 브라우저(localStorage)에만 안전하게 저장</b>됩니다.",
+        saveSettingsBtn: "설정 저장하기",
+        unnamedMeal: "이름 없는 식단",
+        alertNeedApiKey: "우측 상단 [목표·API 설정]에서 Gemini API 키를 먼저 등록해주세요.",
+        alertNeedInput: "칼로리 또는 영양 성분을 입력해주세요.",
+        statusAnalyzing: "AI가 수저·식기 크기를 기준으로 실제 담긴 양을 보수적으로 분석하고 있습니다...",
+        statusDone: "분석 완료! 실제 섭취량에 따라 [섭취량·크기 비율 보정] 버튼을 눌러 70%~120%로 즉시 조절할 수 있습니다.",
+        statusError: "AI 분석에 실패했습니다. API 키를 확인하거나 프리셋·수동 입력으로 기록해주세요.",
+        alertRestored: "데이터 복원이 완료되었습니다.",
+        alertInvalidJson: "올바른 백업 파일이 아닙니다."
+      },
+      en: {
+        langBtn: "🌐 KO",
+        appTitle: "Daily Diet & Nutrition Tracker",
+        appSubtitle: "AI Portion-Aware Photo Analysis · Portion Scaler · 7-Day Report",
+        todayBtn: "Today",
+        settingsBtnText: "Goals & API",
+        apiBannerText: "💡 To use <b>AI Photo Analysis</b>, register your free Gemini API key in <b>[Goals & API]</b>. (Manual & preset logging works without a key)",
+        openModalFromBannerBtn: "Set API Key",
+        recordCardTitle: "📸 Log Meal with Photo",
+        resetFormBtn: "Reset Form",
+        photoSelectText: "Select or Take a Photo",
+        photoSubText: "Include utensils for accurate sizing",
+        analyzeBtnDefault: "✨ AI Portion Analysis",
+        analyzeBtnLoading: "⏳ Analyzing portion size...",
+        optBreakfast: "🌅 Breakfast",
+        optLunch: "☀️ Lunch",
+        optDinner: "🌙 Dinner",
+        optSnack: "🍎 Snack",
+        mealTypes: { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack", "아침": "Breakfast", "점심": "Lunch", "저녁": "Dinner", "간식": "Snack" },
+        foodNamePlaceholder: "Food name (e.g., Kimchi Stew, Rice, Fried Egg)",
+        portionTitle: "⚖️ Portion & Size Scaler",
+        ratio50: "50% (Half)",
+        ratio70: "70% (Light)",
+        ratio80: "80% (Moderate)",
+        ratio100: "100% (Default)",
+        ratio120: "120% (Large)",
+        descHalf: "Half portion",
+        descSmall: "Light / Calibrated",
+        descMod: "Moderate portion",
+        descBase: "Default",
+        descLarge: "Large portion",
+        lblKcal: "Calories(kcal)",
+        lblCarbs: "Carbs(g)",
+        lblProtein: "Protein(g)",
+        lblFat: "Fat(g)",
+        calcKcalFromMacroBtn: "🔄 Auto-calc kcal from Macros (4·4·9)",
+        addMealBtn: "+ Add Meal Log",
+        aiBreakdownTitle: "🔍 AI Detected Items (Uncheck to exclude from total)",
+        aiConfidenceNotice: "Utensil & bowl scale applied",
+        presetTitle: "⚡ Quick Presets (Click to add to inputs)",
+        logListTitleToday: "Today's Meal Log",
+        logListTitleDate: (d) => `Meal Log (${d})`,
+        mealCountUnit: (n) => `${n} item${n === 1 ? "" : "s"}`,
+        emptyMealList: "No meals logged yet. Add your first meal using a photo or quick preset!",
+        portionBadge: (r) => `${r}% portion`,
+        macroShort: { c: "C", p: "P", f: "F" },
+        deleteBtn: "Delete",
+        goalCardTitle: "🎯 Daily Goal Progress",
+        totalKcalLabel: "Total Calories",
+        macroCarbsLabel: "Carbohydrates",
+        macroProteinLabel: "Protein",
+        macroFatLabel: "Fat",
+        kcalRemain: (n) => `${n.toLocaleString()} kcal left`,
+        kcalOver: (n) => `${n.toLocaleString()} kcal over goal`,
+        weeklyCardTitle: "📊 Weekly Average (Last 7 Days)",
+        weeklyActiveDays: (n) => `Logged: ${n}/7 days`,
+        weeklyCardDesc: "Daily average calculated across days with active logs in the last 7 days.",
+        avgKcalLabel: "Weekly Avg Calories",
+        avgProteinLabel: "Weekly Avg Protein",
+        avgCarbsLabel: "Weekly Avg Carbs",
+        avgFatLabel: "Weekly Avg Fat",
+        noRecord: "No logs",
+        vsGoalText: (r) => `${r}% of daily goal`,
+        chartTitleLabel: "7-Day Calorie Trend (Click date to jump)",
+        chartGoalLegend: "Dashed: Goal kcal",
+        storageNoticeText: "Data is stored locally in your browser",
+        exportJsonBtn: "Export Backup(JSON)",
+        importJsonText: "Import Backup",
+        modalTitle: "🎯 Daily Nutrition Goals & AI Key",
+        modalGoalKcalLbl: "Daily Calorie Goal (kcal)",
+        modalGoalCarbsLbl: "Carbs Goal (g)",
+        modalGoalProteinLbl: "Protein Goal (g)",
+        modalGoalFatLbl: "Fat Goal (g)",
+        modalApiKeyLbl: "Gemini API Key (For Photo Analysis)",
+        getApiKeyLink: "Get Free API Key ↗",
+        modalApiNotice: "• Your API key is never sent to any external server and is <b>stored strictly in your local browser (localStorage)</b>.",
+        saveSettingsBtn: "Save Settings",
+        unnamedMeal: "Unnamed Meal",
+        alertNeedApiKey: "Please register your Gemini API key in [Goals & API] first.",
+        alertNeedInput: "Please enter calories or macro values.",
+        statusAnalyzing: "AI is estimating realistic portion weights based on utensil and bowl sizes...",
+        statusDone: "Analysis complete! Use the [Portion & Size Scaler] buttons (70%~120%) to adjust for your actual intake.",
+        statusError: "AI analysis failed. Please check your API key or enter values manually.",
+        alertRestored: "Backup data restored successfully.",
+        alertInvalidJson: "Invalid backup JSON file."
+      }
+    };
+
+    // 자주 먹는 식단 빠른 프리셋 (한/영 이름 지원)
     const PRESETS = [
-      { name: "잡곡밥 2/3공기(150g)", kcal: 230, carbs: 50, protein: 4.5, fat: 1 },
-      { name: "쌀밥 1공기(210g)", kcal: 310, carbs: 68, protein: 6, fat: 1 },
-      { name: "돼지고기 김치찌개(건더기 위주)", kcal: 250, carbs: 8, protein: 18, fat: 16 },
-      { name: "계란후라이 1개", kcal: 95, carbs: 1, protein: 6, fat: 7 },
-      { name: "닭가슴살 150g", kcal: 165, carbs: 0, protein: 35, fat: 2 },
-      { name: "닭안심 150g", kcal: 160, carbs: 0, protein: 34, fat: 1.8 },
-      { name: "소고기 다짐육 150g", kcal: 315, carbs: 0, protein: 30, fat: 21 },
-      { name: "두부 1/2모(150g)", kcal: 126, carbs: 4, protein: 14, fat: 6 },
-      { name: "단백질 쉐이크", kcal: 210, carbs: 10, protein: 30, fat: 4 }
+      { ko: "잡곡밥 2/3공기(150g)", en: "Multigrain Rice (150g)", kcal: 230, carbs: 50, protein: 4.5, fat: 1 },
+      { ko: "쌀밥 1공기(210g)", en: "Steamed White Rice (210g)", kcal: 310, carbs: 68, protein: 6, fat: 1 },
+      { ko: "돼지고기 김치찌개(건더기)", en: "Pork Kimchi Stew (Solids)", kcal: 250, carbs: 8, protein: 18, fat: 16 },
+      { ko: "계란후라이 1개", en: "Fried Egg (1 pc)", kcal: 95, carbs: 1, protein: 6, fat: 7 },
+      { ko: "닭가슴살 150g", en: "Chicken Breast (150g)", kcal: 165, carbs: 0, protein: 35, fat: 2 },
+      { ko: "닭안심 150g", en: "Chicken Tenderloin (150g)", kcal: 160, carbs: 0, protein: 34, fat: 1.8 },
+      { ko: "소고기 다짐육 150g", en: "Minced Beef (150g)", kcal: 315, carbs: 0, protein: 30, fat: 21 },
+      { ko: "두부 1/2모(150g)", en: "Tofu 1/2 Block (150g)", kcal: 126, carbs: 4, protein: 14, fat: 6 },
+      { ko: "단백질 쉐이크", en: "Protein Shake", kcal: 210, carbs: 10, protein: 30, fat: 4 }
     ];
 
+    let currentLang = localStorage.getItem(STORAGE_LANG_KEY) || "ko";
     let logsByDate = JSON.parse(localStorage.getItem(STORAGE_LOGS_KEY) || "{}");
     let goals = JSON.parse(localStorage.getItem(STORAGE_GOALS_KEY) || JSON.stringify(DEFAULT_GOALS));
     let currentPhotoDataUrl = "";
 
-    // 섭취 비율 조절을 위한 100% 기준 영양 데이터
     let baseNutrition = { kcal: 0, carbs: 0, protein: 0, fat: 0 };
     let aiDetectedItems = [];
     let currentPortionRatio = 100;
+
+    function t() {
+      return I18N[currentLang] || I18N.ko;
+    }
 
     function getLocalDateString(dateObj = new Date()) {
       const offset = dateObj.getTimezoneOffset() * 60000;
@@ -390,6 +575,87 @@
     const ratioButtons = document.querySelectorAll(".ratio-btn");
     const aiBreakdownBox = document.getElementById("aiBreakdownBox");
     const aiBreakdownList = document.getElementById("aiBreakdownList");
+    const presetContainer = document.getElementById("presetContainer");
+
+    // 언어 전환 버튼 이벤트
+    document.getElementById("langToggleBtn").addEventListener("click", () => {
+      currentLang = currentLang === "ko" ? "en" : "ko";
+      localStorage.setItem(STORAGE_LANG_KEY, currentLang);
+      document.documentElement.lang = currentLang;
+      applyStaticTranslations();
+      renderPresets();
+      applyPortionRatio(currentPortionRatio);
+      renderAiBreakdown();
+      renderAll();
+    });
+
+    function applyStaticTranslations() {
+      const dict = t();
+      document.getElementById("langToggleBtn").textContent = dict.langBtn;
+      document.getElementById("appTitle").textContent = dict.appTitle;
+      document.getElementById("appSubtitle").textContent = dict.appSubtitle;
+      document.getElementById("todayBtn").textContent = dict.todayBtn;
+      document.getElementById("settingsBtnText").textContent = dict.settingsBtnText;
+      document.getElementById("apiBannerText").innerHTML = dict.apiBannerText;
+      document.getElementById("openModalFromBannerBtn").textContent = dict.openModalFromBannerBtn;
+      document.getElementById("recordCardTitle").textContent = dict.recordCardTitle;
+      document.getElementById("resetFormBtn").textContent = dict.resetFormBtn;
+      document.getElementById("photoSelectText").textContent = dict.photoSelectText;
+      document.getElementById("photoSubText").textContent = dict.photoSubText;
+      analyzePhotoBtn.textContent = dict.analyzeBtnDefault;
+
+      document.getElementById("optBreakfast").textContent = dict.optBreakfast;
+      document.getElementById("optLunch").textContent = dict.optLunch;
+      document.getElementById("optDinner").textContent = dict.optDinner;
+      document.getElementById("optSnack").textContent = dict.optSnack;
+      foodNameEl.placeholder = dict.foodNamePlaceholder;
+
+      document.getElementById("portionTitle").textContent = dict.portionTitle;
+      document.getElementById("ratioBtn50").textContent = dict.ratio50;
+      document.getElementById("ratioBtn70").textContent = dict.ratio70;
+      document.getElementById("ratioBtn80").textContent = dict.ratio80;
+      document.getElementById("ratioBtn100").textContent = dict.ratio100;
+      document.getElementById("ratioBtn120").textContent = dict.ratio120;
+
+      document.getElementById("lblKcal").textContent = dict.lblKcal;
+      document.getElementById("lblCarbs").textContent = dict.lblCarbs;
+      document.getElementById("lblProtein").textContent = dict.lblProtein;
+      document.getElementById("lblFat").textContent = dict.lblFat;
+      document.getElementById("calcKcalFromMacroBtn").textContent = dict.calcKcalFromMacroBtn;
+      document.getElementById("addMealBtn").textContent = dict.addMealBtn;
+
+      document.getElementById("aiBreakdownTitle").textContent = dict.aiBreakdownTitle;
+      document.getElementById("aiConfidenceNotice").textContent = dict.aiConfidenceNotice;
+      document.getElementById("presetTitle").textContent = dict.presetTitle;
+
+      document.getElementById("goalCardTitle").textContent = dict.goalCardTitle;
+      document.getElementById("totalKcalLabel").textContent = dict.totalKcalLabel;
+      document.getElementById("macroCarbsLabel").textContent = dict.macroCarbsLabel;
+      document.getElementById("macroProteinLabel").textContent = dict.macroProteinLabel;
+      document.getElementById("macroFatLabel").textContent = dict.macroFatLabel;
+
+      document.getElementById("weeklyCardTitle").textContent = dict.weeklyCardTitle;
+      document.getElementById("weeklyCardDesc").textContent = dict.weeklyCardDesc;
+      document.getElementById("avgKcalLabel").textContent = dict.avgKcalLabel;
+      document.getElementById("avgProteinLabel").textContent = dict.avgProteinLabel;
+      document.getElementById("avgCarbsLabel").textContent = dict.avgCarbsLabel;
+      document.getElementById("avgFatLabel").textContent = dict.avgFatLabel;
+      document.getElementById("chartTitleLabel").textContent = dict.chartTitleLabel;
+      document.getElementById("chartGoalLegend").textContent = dict.chartGoalLegend;
+      document.getElementById("storageNoticeText").textContent = dict.storageNoticeText;
+      document.getElementById("exportJsonBtn").textContent = dict.exportJsonBtn;
+      document.getElementById("importJsonText").textContent = dict.importJsonText;
+
+      document.getElementById("modalTitle").textContent = dict.modalTitle;
+      document.getElementById("modalGoalKcalLbl").textContent = dict.modalGoalKcalLbl;
+      document.getElementById("modalGoalCarbsLbl").textContent = dict.modalGoalCarbsLbl;
+      document.getElementById("modalGoalProteinLbl").textContent = dict.modalGoalProteinLbl;
+      document.getElementById("modalGoalFatLbl").textContent = dict.modalGoalFatLbl;
+      document.getElementById("modalApiKeyLbl").textContent = dict.modalApiKeyLbl;
+      document.getElementById("getApiKeyLink").textContent = dict.getApiKeyLink;
+      document.getElementById("modalApiNotice").innerHTML = dict.modalApiNotice;
+      document.getElementById("saveSettingsBtn").textContent = dict.saveSettingsBtn;
+    }
 
     function checkApiBanner() {
       const hasKey = !!localStorage.getItem(STORAGE_API_KEY);
@@ -400,7 +666,6 @@
       }
     }
 
-    // 사용자가 직접 입력칸을 수정하면 그 값을 현재 비율 역산 기준값으로 업데이트
     function syncBaseFromInputs() {
       const factor = (currentPortionRatio || 100) / 100;
       baseNutrition = {
@@ -415,17 +680,17 @@
       el.addEventListener("input", syncBaseFromInputs);
     });
 
-    // 비율 변경 시 입력란 수치 자동 스케일링
     function applyPortionRatio(ratio) {
       currentPortionRatio = ratio;
       portionSlider.value = ratio;
+      const dict = t();
 
-      let desc = "기본";
-      if (ratio <= 55) desc = "반 공기/절반";
-      else if (ratio <= 75) desc = "소식/과대측정 보정";
-      else if (ratio <= 85) desc = "적당히 섭취";
-      else if (ratio === 100) desc = "기본";
-      else if (ratio > 100) desc = "넉넉히/곱빼기";
+      let desc = dict.descBase;
+      if (ratio <= 55) desc = dict.descHalf;
+      else if (ratio <= 75) desc = dict.descSmall;
+      else if (ratio <= 85) desc = dict.descMod;
+      else if (ratio === 100) desc = dict.descBase;
+      else if (ratio > 100) desc = dict.descLarge;
 
       portionValueLabel.textContent = `${ratio}% (${desc})`;
 
@@ -458,35 +723,37 @@
       });
     });
 
-    // 프리셋 렌더링
-    const presetContainer = document.getElementById("presetContainer");
-    PRESETS.forEach(item => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-medium border border-slate-200 transition";
-      btn.textContent = `+ ${item.name}`;
-      btn.addEventListener("click", () => {
-        foodNameEl.value = foodNameEl.value ? `${foodNameEl.value}, ${item.name}` : item.name;
-        const factor = currentPortionRatio / 100;
-        baseNutrition.kcal += item.kcal;
-        baseNutrition.carbs += item.carbs;
-        baseNutrition.protein += item.protein;
-        baseNutrition.fat += item.fat;
+    function renderPresets() {
+      presetContainer.innerHTML = "";
+      PRESETS.forEach(item => {
+        const displayName = currentLang === "en" ? item.en : item.ko;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-medium border border-slate-200 transition";
+        btn.textContent = `+ ${displayName}`;
+        btn.addEventListener("click", () => {
+          foodNameEl.value = foodNameEl.value ? `${foodNameEl.value}, ${displayName}` : displayName;
+          const factor = currentPortionRatio / 100;
+          baseNutrition.kcal += item.kcal;
+          baseNutrition.carbs += item.carbs;
+          baseNutrition.protein += item.protein;
+          baseNutrition.fat += item.fat;
 
-        inputKcalEl.value = Math.round(baseNutrition.kcal * factor);
-        inputCarbsEl.value = +(baseNutrition.carbs * factor).toFixed(1);
-        inputProteinEl.value = +(baseNutrition.protein * factor).toFixed(1);
-        inputFatEl.value = +(baseNutrition.fat * factor).toFixed(1);
+          inputKcalEl.value = Math.round(baseNutrition.kcal * factor);
+          inputCarbsEl.value = +(baseNutrition.carbs * factor).toFixed(1);
+          inputProteinEl.value = +(baseNutrition.protein * factor).toFixed(1);
+          inputFatEl.value = +(baseNutrition.fat * factor).toFixed(1);
+        });
+        presetContainer.appendChild(btn);
       });
-      presetContainer.appendChild(btn);
-    });
+    }
 
-    // AI 분석 세부 품목 렌더링 및 체크박스 연동
     function renderAiBreakdown() {
       if (!aiDetectedItems || aiDetectedItems.length === 0) {
         aiBreakdownBox.classList.add("hidden");
         return;
       }
+      const ms = t().macroShort;
       aiBreakdownBox.classList.remove("hidden");
       aiBreakdownList.innerHTML = aiDetectedItems.map((item, idx) => `
         <label class="flex items-center justify-between p-2 rounded-lg bg-white border border-indigo-100 cursor-pointer hover:bg-indigo-50/40">
@@ -496,7 +763,7 @@
             <span class="text-[11px] text-slate-400">(${item.estimatedWeight})</span>
           </div>
           <span class="text-slate-600 font-medium">
-            <b>${Math.round(item.kcal)} kcal</b> · 탄 ${item.carbs}g · 단 ${item.protein}g · 지 ${item.fat}g
+            <b>${Math.round(item.kcal)} kcal</b> · ${ms.c} ${item.carbs}g · ${ms.p} ${item.protein}g · ${ms.f} ${item.fat}g
           </span>
         </label>
       `).join("");
@@ -523,7 +790,6 @@
       applyPortionRatio(currentPortionRatio);
     }
 
-    // 이미지 리사이즈 압축
     function compressImage(file, maxSize = 720) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -562,30 +828,35 @@
       analyzePhotoBtn.disabled = false;
     });
 
-    // AI 사진 분석 (수저/그릇 크기 비교를 통한 과대 측정 방지 프롬프트 적용)
     analyzePhotoBtn.addEventListener("click", async () => {
+      const dict = t();
       const apiKey = localStorage.getItem(STORAGE_API_KEY);
       if (!apiKey) {
-        alert("우측 상단 [목표·API 설정]에서 Gemini API 키를 먼저 등록해주세요.");
+        alert(dict.alertNeedApiKey);
         openGoalModal();
         return;
       }
       if (!currentPhotoDataUrl) return;
 
       analyzePhotoBtn.disabled = true;
-      analyzePhotoBtn.textContent = "⏳ 실측 비율 분석 중...";
-      statusMessage.textContent = "AI가 수저·식기 크기를 기준으로 실제 담긴 양을 보수적으로 분석하고 있습니다...";
+      analyzePhotoBtn.textContent = dict.analyzeBtnLoading;
+      statusMessage.textContent = dict.statusAnalyzing;
       statusMessage.classList.remove("hidden");
 
       try {
         const base64Data = currentPhotoDataUrl.split(",")[1];
-        const promptText = `이 음식 사진의 구성 품목과 실제 담긴 양 기준 영양 성분을 JSON으로 반환해줘.
-과대 측정을 막기 위해 반드시 다음 규칙을 엄격하게 지킬 것:
-1. 사진 속 숟가락(머리 길이 약 4~4.5cm), 젓가락, 앞접시, 뚝배기 크기를 기준으로 음식의 실제 부피와 중량(g)을 먼저 보수적으로 산출할 것.
-2. 비빔밥 대접처럼 그릇이 크더라도 그릇 크기에 속지 말고 실제 바닥에 깔린 밥의 높이(계란후라이 크기와 비교)만 계산할 것(보통 150~200g 내외).
-3. 고로케, 튀김, 만두 등 사이드 반찬은 제과점용 대형 크기가 아니라 수저 알 크기와 비교한 실제 구내식당 한입 반찬 사이즈(개당 25~30g 수준)로 계산할 것.
-4. 김치찌개, 된장찌개 등 국물 요리는 국물을 100% 마시지 않고 건더기 위주로 섭취하는 현실적인 식사 기준으로 계산할 것.
-5. 각 품목의 kcal는 (carbs*4 + protein*4 + fat*9)와 오차가 거의 없도록 일치시킬 것.`;
+        const langInstruction = currentLang === "en"
+          ? "Return all item names and estimatedWeight in English (e.g., 'Multigrain Rice', 'approx. 170g')."
+          : "모든 품목 이름(name)과 추정 중량(estimatedWeight)은 한국어로 작성할 것 (예: '잡곡밥', '약 170g').";
+
+        const promptText = `Analyze the food items in this photo and estimate their actual nutrition values in JSON.
+${langInstruction}
+To prevent overestimation, strictly follow these rules:
+1. Use the visible spoon (head length ~4-4.5cm), chopsticks, side dish plates, and soup bowls as scale references to conservatively estimate actual volume and weight (g).
+2. Even if a mixing bowl is wide, estimate only the actual shallow layer of rice at the bottom (usually 150-200g).
+3. Side dishes like croquettes, dumplings, or tempura should be scaled against the spoon head as cafeteria bite-sized pieces (25-30g each), not large bakery sizes.
+4. For stews or soups (like Kimchi stew), assume realistic consumption focusing on solid ingredients rather than drinking 100% of the broth.
+5. Ensure each item's kcal closely matches (carbs*4 + protein*4 + fat*9).`;
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
           method: "POST",
@@ -625,9 +896,7 @@
         });
 
         const data = await response.json();
-        if (data.error) {
-          throw new Error(data.error.message || "API 호출 오류");
-        }
+        if (data.error) throw new Error(data.error.message || "API Error");
 
         const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
         aiDetectedItems = (parsed.items || []).map(item => ({
@@ -642,17 +911,15 @@
         currentPortionRatio = 100;
         renderAiBreakdown();
         recalculateFromAiItems();
-
-        statusMessage.textContent = `분석 완료! 실제 섭취량에 따라 [섭취량·크기 비율 보정] 버튼을 눌러 70%~120%로 즉시 조절할 수 있습니다.`;
+        statusMessage.textContent = dict.statusDone;
       } catch (err) {
-        statusMessage.textContent = "AI 분석에 실패했습니다. API 키를 확인하거나 프리셋·수동 입력으로 기록해주세요.";
+        statusMessage.textContent = dict.statusError;
       } finally {
         analyzePhotoBtn.disabled = false;
-        analyzePhotoBtn.textContent = "✨ AI 실측 영양 분석";
+        analyzePhotoBtn.textContent = dict.analyzeBtnDefault;
       }
     });
 
-    // 탄단지(4-4-9) 기반 칼로리 자동 계산
     document.getElementById("calcKcalFromMacroBtn").addEventListener("click", () => {
       const c = parseFloat(inputCarbsEl.value) || 0;
       const p = parseFloat(inputProteinEl.value) || 0;
@@ -661,16 +928,16 @@
       syncBaseFromInputs();
     });
 
-    // 식단 추가
     document.getElementById("addMealBtn").addEventListener("click", () => {
-      const name = foodNameEl.value.trim() || "이름 없는 식단";
+      const dict = t();
+      const name = foodNameEl.value.trim() || dict.unnamedMeal;
       const kcal = parseFloat(inputKcalEl.value) || 0;
       const carbs = parseFloat(inputCarbsEl.value) || 0;
       const protein = parseFloat(inputProteinEl.value) || 0;
       const fat = parseFloat(inputFatEl.value) || 0;
 
       if (kcal === 0 && carbs === 0 && protein === 0 && fat === 0) {
-        alert("칼로리 또는 영양 성분을 입력해주세요.");
+        alert(dict.alertNeedInput);
         return;
       }
 
@@ -726,42 +993,48 @@
     };
 
     function renderAll() {
+      const dict = t();
       checkApiBanner();
       datePicker.value = selectedDate;
       const todayStr = getLocalDateString();
-      document.getElementById("selectedDateLabel").textContent = selectedDate === todayStr ? "오늘" : selectedDate;
+      document.getElementById("logListTitle").textContent =
+        selectedDate === todayStr ? dict.logListTitleToday : dict.logListTitleDate(selectedDate);
 
       const dayMeals = logsByDate[selectedDate] || [];
-      document.getElementById("mealCountBadge").textContent = `${dayMeals.length}건`;
+      document.getElementById("mealCountBadge").textContent = dict.mealCountUnit(dayMeals.length);
 
       const mealListEl = document.getElementById("mealList");
+      const ms = dict.macroShort;
       if (dayMeals.length === 0) {
-        mealListEl.innerHTML = `<div class="text-center py-8 text-sm text-slate-400">아직 등록된 식단이 없습니다. 사진이나 프리셋으로 첫 끼니를 기록해보세요!</div>`;
+        mealListEl.innerHTML = `<div class="text-center py-8 text-sm text-slate-400">${dict.emptyMealList}</div>`;
       } else {
-        mealListEl.innerHTML = dayMeals.map(m => `
-          <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/70 gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              ${m.photo
-                ? `<img src="${m.photo}" class="w-14 h-14 rounded-lg object-cover border border-slate-200 shrink-0" alt="${m.name}">`
-                : `<div class="w-14 h-14 rounded-lg bg-slate-200/70 flex items-center justify-center text-lg shrink-0">🍽️</div>`
-              }
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-xs font-bold px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700">${m.mealType}</span>
-                  ${m.portionRatio && m.portionRatio !== 100
-                    ? `<span class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">${m.portionRatio}% 섭취</span>`
-                    : ""
-                  }
-                  <h4 class="text-sm font-bold text-slate-900 truncate">${m.name}</h4>
+        mealListEl.innerHTML = dayMeals.map(m => {
+          const mealTypeDisplay = dict.mealTypes[m.mealType] || m.mealType;
+          return `
+            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/70 gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                ${m.photo
+                  ? `<img src="${m.photo}" class="w-14 h-14 rounded-lg object-cover border border-slate-200 shrink-0" alt="${m.name}">`
+                  : `<div class="w-14 h-14 rounded-lg bg-slate-200/70 flex items-center justify-center text-lg shrink-0">🍽️</div>`
+                }
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700">${mealTypeDisplay}</span>
+                    ${m.portionRatio && m.portionRatio !== 100
+                      ? `<span class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">${dict.portionBadge(m.portionRatio)}</span>`
+                      : ""
+                    }
+                    <h4 class="text-sm font-bold text-slate-900 truncate">${m.name}</h4>
+                  </div>
+                  <p class="text-xs text-slate-500 mt-1">
+                    <b class="text-slate-800">${m.kcal.toLocaleString()} kcal</b> · ${ms.c} ${m.carbs}g · ${ms.p} ${m.protein}g · ${ms.f} ${m.fat}g
+                  </p>
                 </div>
-                <p class="text-xs text-slate-500 mt-1">
-                  <b class="text-slate-800">${m.kcal.toLocaleString()} kcal</b> · 탄 ${m.carbs}g · 단 ${m.protein}g · 지 ${m.fat}g
-                </p>
               </div>
+              <button onclick="deleteMeal(${m.id})" class="text-xs text-slate-400 hover:text-rose-600 px-2 py-1 shrink-0">${dict.deleteBtn}</button>
             </div>
-            <button onclick="deleteMeal(${m.id})" class="text-xs text-slate-400 hover:text-rose-600 px-2 py-1 shrink-0">삭제</button>
-          </div>
-        `).join("");
+          `;
+        }).join("");
       }
 
       const totals = dayMeals.reduce((acc, cur) => ({
@@ -797,10 +1070,10 @@
       const diffKcal = goals.kcal - Math.round(totals.kcal);
       const diffBadge = document.getElementById("dailyCalorieDiff");
       if (diffKcal >= 0) {
-        diffBadge.textContent = `목표까지 ${diffKcal.toLocaleString()} kcal 여유`;
+        diffBadge.textContent = dict.kcalRemain(diffKcal);
         diffBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700";
       } else {
-        diffBadge.textContent = `목표 대비 ${Math.abs(diffKcal).toLocaleString()} kcal 초과`;
+        diffBadge.textContent = dict.kcalOver(Math.abs(diffKcal));
         diffBadge.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700";
       }
 
@@ -808,6 +1081,7 @@
     }
 
     function renderWeeklyStats() {
+      const dict = t();
       const baseDate = new Date(selectedDate + "T00:00:00");
       const weekDays = [];
 
@@ -846,16 +1120,16 @@
       const avgProtein = activeDays.length ? +(sumWeek.protein / divisor).toFixed(1) : 0;
       const avgFat = activeDays.length ? +(sumWeek.fat / divisor).toFixed(1) : 0;
 
-      document.getElementById("weeklyActiveDays").textContent = `기록일: ${activeDays.length}/7일`;
+      document.getElementById("weeklyActiveDays").textContent = dict.weeklyActiveDays(activeDays.length);
       document.getElementById("avgKcal").textContent = avgKcal.toLocaleString();
       document.getElementById("avgCarbs").textContent = avgCarbs;
       document.getElementById("avgProtein").textContent = avgProtein;
       document.getElementById("avgFat").textContent = avgFat;
 
       const formatVsGoal = (val, goal) => {
-        if (!activeDays.length || !goal) return "기록 없음";
+        if (!activeDays.length || !goal) return dict.noRecord;
         const ratio = Math.round((val / goal) * 100);
-        return `목표의 ${ratio}% 수준`;
+        return dict.vsGoalText(ratio);
       };
 
       document.getElementById("avgKcalVsGoal").textContent = formatVsGoal(avgKcal, goals.kcal);
@@ -979,14 +1253,19 @@
             saveLogs();
           }
           renderAll();
-          alert("데이터 복원이 완료되었습니다.");
+          alert(t().alertRestored);
         } catch {
-          alert("올바른 백업 파일이 아닙니다.");
+          alert(t().alertInvalidJson);
         }
       };
       reader.readAsText(file);
     });
 
+    // 초기화 실행
+    document.documentElement.lang = currentLang;
+    applyStaticTranslations();
+    renderPresets();
+    applyPortionRatio(100);
     renderAll();
   </script>
 </body>
