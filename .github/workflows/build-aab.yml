@@ -1,0 +1,66 @@
+name: Build Android App Bundle (.aab)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Ensure Gradle Wrapper exists
+      run: |
+        if [ ! -f ./gradlew ]; then
+          gradle wrapper --gradle-version 8.7
+        fi
+        chmod +x ./gradlew
+
+    - name: Generate Release Keystore (if not present)
+      run: |
+        if [ ! -f app/release.jks ]; then
+          echo "Generating release keystore..."
+          keytool -genkeypair -v \
+            -keystore app/release.jks \
+            -alias basementdragon \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "basementdragon123!" \
+            -keypass "basementdragon123!" \
+            -dname "CN=BasementDragon, OU=Mobile, O=BasementDragon, L=Seoul, S=Seoul, C=KR"
+        fi
+
+    - name: Build Release AAB
+      env:
+        KEYSTORE_PASSWORD: "basementdragon123!"
+        KEY_ALIAS: "basementdragon"
+        KEY_PASSWORD: "basementdragon123!"
+      run: ./gradlew :app:bundleRelease --stacktrace
+
+    - name: Upload Release AAB to Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-bundle
+        path: app/build/outputs/bundle/release/*.aab
+        retention-days: 30
+
+    - name: Upload Keystore (Keep this safe for future updates!)
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-keystore
+        path: app/release.jks
+        retention-days: 30
