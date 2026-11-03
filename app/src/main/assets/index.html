@@ -316,14 +316,12 @@
 
       <div class="pt-3 border-t border-slate-200 space-y-2">
         <div class="flex items-center justify-between">
-          <label class="block text-xs font-semibold text-slate-700">Gemini API Key (사진 자동 분석용)</label>
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-indigo-600 hover:underline">
-            무료 API 키 발급받기 ↗
-          </a>
+          <label class="block text-xs font-semibold text-slate-700">Gemini API Key (사진 자동 분석용 - 선택 사항)</label>
+          <span class="text-xs text-slate-400">Google AI Studio 키</span>
         </div>
-        <input id="apiKeyInput" type="password" placeholder="AIzaSy..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+        <input id="apiKeyInput" type="text" autocomplete="off" placeholder="AIzaSy... (선택 사항)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" style="-webkit-text-security: disc;">
         <p class="text-[11px] text-slate-500 leading-relaxed">
-          • 깃허브 페이지 등 공개 웹에서도 안전하도록 입력한 API 키는 외부 서버로 전송되지 않고 <b>현재 접속한 기기의 브라우저(localStorage)에만 저장</b>됩니다.
+          • 입력한 API 키는 외부 서버로 전송되지 않고 <b>현재 기기(localStorage)에만 안전하게 보관</b>됩니다. 키가 없어도 모든 식단 계산 및 사진 첨부 기능을 제한 없이 이용하실 수 있습니다.
         </p>
       </div>
 
